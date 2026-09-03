@@ -1,6 +1,7 @@
 package org.example.repository;
 
 import org.example.entities.Product;
+import org.example.exceptions.DatabaseException;
 
 import java.sql.*;
 import java.util.*;
@@ -16,34 +17,41 @@ public class ProductRepository implements EntityRepository<Product> {
     @Override
     public void save(Product service) {
         String query = "INSERT INTO services (uuid, description, hourly_rate) VALUES (?, ?, ?)";
-        try {
-            PreparedStatement stmt = connection.prepareStatement(query);
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, service.getUuid().toString());
             stmt.setString(2, service.getDescription());
             stmt.setDouble(3, service.getHourlyRate());
             stmt.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao salvar serviço", e);
+            throw new DatabaseException("Erro ao salvar serviço no banco de dados", e);
+        }
+    }
+
+    public void update(Product service) {
+        String query = "UPDATE services SET description = ?, hourly_rate = ? WHERE uuid = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, service.getDescription());
+            stmt.setDouble(2, service.getHourlyRate());
+            stmt.setString(3, service.getUuid().toString());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DatabaseException("Erro ao atualizar serviço no banco de dados", e);
         }
     }
 
     @Override
     public Optional<Product> findById(UUID id) {
         String query = "SELECT * FROM services WHERE uuid = ?";
-        try {
-            PreparedStatement stmt = connection.prepareStatement(query);
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, id.toString());
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                Product service = new Product(
-                        UUID.fromString(rs.getString("uuid")),
-                        rs.getString("description"),
-                        rs.getDouble("hourly_rate")
-                );
-                return Optional.of(service);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    Product service = mapResultSetToProduct(rs);
+                    return Optional.of(service);
+                }
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao buscar serviço por ID", e);
+            throw new DatabaseException("Erro ao buscar serviço por ID", e);
         }
         return Optional.empty();
     }
@@ -52,19 +60,29 @@ public class ProductRepository implements EntityRepository<Product> {
     public List<Product> findAll() {
         List<Product> services = new ArrayList<>();
         String query = "SELECT * FROM services";
-        try {
-            PreparedStatement stmt = connection.prepareStatement(query);
-            ResultSet rs = stmt.executeQuery();
+        try (PreparedStatement stmt = connection.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
-                Product service = new Product(
-                        UUID.fromString(rs.getString("uuid")),
-                        rs.getString("description"),
-                        rs.getDouble("hourly_rate")
-                );
-                services.add(service);
+                services.add(mapResultSetToProduct(rs));
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao listar serviços", e);
+            throw new DatabaseException("Erro ao listar serviços", e);
+        }
+        return services;
+    }
+
+    public List<Product> findByDescriptionContaining(String keyword) {
+        List<Product> services = new ArrayList<>();
+        String query = "SELECT * FROM services WHERE LOWER(description) LIKE LOWER(?)";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, "%" + keyword + "%");
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    services.add(mapResultSetToProduct(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw new DatabaseException("Erro ao buscar serviços por descrição", e);
         }
         return services;
     }
@@ -72,21 +90,28 @@ public class ProductRepository implements EntityRepository<Product> {
     @Override
     public void deleteById(UUID id) {
         String query = "DELETE FROM services WHERE uuid = ?";
-        try {
-            PreparedStatement stmt = connection.prepareStatement(query);
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, id.toString());
             stmt.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao deletar serviço", e);
+            throw new DatabaseException("Erro ao deletar serviço", e);
         }
     }
 
-    public void deleteAll() throws SQLException {
+    public void deleteAll() {
         String query = "DELETE FROM services";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.executeUpdate();
         } catch (SQLException e) {
-            throw new SQLException("Erro ao remover todos os serviços", e);
+            throw new DatabaseException("Erro ao remover todos os serviços", e);
         }
+    }
+
+    private Product mapResultSetToProduct(ResultSet rs) throws SQLException {
+        return new Product(
+                UUID.fromString(rs.getString("uuid")),
+                rs.getString("description"),
+                rs.getDouble("hourly_rate")
+        );
     }
 }
