@@ -2,6 +2,7 @@ package org.example.entities;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.UUID;
 
 public class Order {
@@ -98,7 +99,7 @@ public class Order {
                 ", usuarioId=" + userId +
                 ", servicoId=" + productId +
                 ", horas=" + hours +
-                ", valorTotal=R$" + String.format("%.2f", totalAmount) +
+                ", valorTotal=R$" + String.format(Locale.US, "%.2f", totalAmount) +
                 ", status=" + status.getDescription() +
                 ", dataCriacao=" + formattedDate +
                 '}';

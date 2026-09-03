@@ -22,7 +22,7 @@ public class MenuHandler {
             int option;
             do {
                 printMainMenu();
-                option = readInt(scanner);
+                option = ConsoleInputUtils.readInt(scanner);
 
                 switch (option) {
                     case 1 -> userConsoleView.runMenu(scanner);
@@ -46,16 +46,5 @@ public class MenuHandler {
         System.out.println("3 - Gerenciar Pedidos");
         System.out.println("0 - Sair");
         System.out.print("Escolha uma opção: ");
-    }
-
-    private int readInt(Scanner scanner) {
-        try {
-            int val = scanner.nextInt();
-            scanner.nextLine();
-            return val;
-        } catch (Exception e) {
-            scanner.nextLine();
-            return -1;
-        }
     }
 }

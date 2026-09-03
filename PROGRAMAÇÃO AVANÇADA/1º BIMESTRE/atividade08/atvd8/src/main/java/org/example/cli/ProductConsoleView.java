@@ -19,7 +19,7 @@ public class ProductConsoleView {
         int option;
         do {
             printProductMenu();
-            option = readInt(scanner);
+            option = ConsoleInputUtils.readInt(scanner);
 
             try {
                 switch (option) {
@@ -54,7 +54,7 @@ public class ProductConsoleView {
         System.out.print("Descrição do serviço: ");
         String description = scanner.nextLine();
         System.out.print("Valor por hora (R$): ");
-        double hourlyRate = readDouble(scanner);
+        double hourlyRate = ConsoleInputUtils.readDouble(scanner);
 
         Product product = productService.registerProduct(description, hourlyRate);
         System.out.println("Serviço cadastrado com sucesso!");
@@ -95,7 +95,7 @@ public class ProductConsoleView {
         System.out.print("Nova descrição (pressione Enter para manter a atual): ");
         String description = scanner.nextLine();
         System.out.print("Novo valor por hora (ou 0 para manter o atual): ");
-        double rate = readDouble(scanner);
+        double rate = ConsoleInputUtils.readDouble(scanner);
 
         Product updated = productService.updateProduct(uuid, description, rate);
         System.out.println("Serviço atualizado com sucesso!");
@@ -113,27 +113,5 @@ public class ProductConsoleView {
     private void clearAllProducts() {
         productService.clearAllProducts();
         System.out.println("Todos os serviços foram removidos com sucesso.");
-    }
-
-    private int readInt(Scanner scanner) {
-        try {
-            int val = scanner.nextInt();
-            scanner.nextLine();
-            return val;
-        } catch (Exception e) {
-            scanner.nextLine();
-            return -1;
-        }
-    }
-
-    private double readDouble(Scanner scanner) {
-        try {
-            double val = scanner.nextDouble();
-            scanner.nextLine();
-            return val;
-        } catch (Exception e) {
-            scanner.nextLine();
-            return -1.0;
-        }
     }
 }

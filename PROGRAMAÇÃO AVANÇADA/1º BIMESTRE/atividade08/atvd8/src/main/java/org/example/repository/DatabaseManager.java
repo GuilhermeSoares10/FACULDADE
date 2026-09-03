@@ -15,11 +15,17 @@ public class DatabaseManager {
     }
 
     public Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(dbUrl);
+        Connection conn = DriverManager.getConnection(dbUrl);
+        try (Statement stmt = conn.createStatement()) {
+            stmt.execute("PRAGMA foreign_keys = ON;");
+        }
+        return conn;
     }
 
     public void initializeTables(Connection conn) {
         try (Statement stmt = conn.createStatement()) {
+            stmt.execute("PRAGMA foreign_keys = ON;");
+
             String createServicesTable =
                     "CREATE TABLE IF NOT EXISTS services (" +
                             "uuid TEXT PRIMARY KEY," +

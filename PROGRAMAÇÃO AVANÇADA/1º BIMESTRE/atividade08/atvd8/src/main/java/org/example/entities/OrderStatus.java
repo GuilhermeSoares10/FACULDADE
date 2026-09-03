@@ -1,5 +1,7 @@
 package org.example.entities;
 
+import org.example.exceptions.ValidationException;
+
 public enum OrderStatus {
     PENDING("Pendente"),
     IN_PROGRESS("Em Andamento"),
@@ -17,14 +19,14 @@ public enum OrderStatus {
     }
 
     public static OrderStatus fromString(String statusStr) {
-        if (statusStr == null) {
-            return PENDING;
+        if (statusStr == null || statusStr.trim().isEmpty()) {
+            throw new ValidationException("Status do pedido não pode ser vazio.");
         }
         for (OrderStatus status : OrderStatus.values()) {
-            if (status.name().equalsIgnoreCase(statusStr) || status.getDescription().equalsIgnoreCase(statusStr)) {
+            if (status.name().equalsIgnoreCase(statusStr.trim()) || status.getDescription().equalsIgnoreCase(statusStr.trim())) {
                 return status;
             }
         }
-        return PENDING;
+        throw new ValidationException("Status do pedido inválido: " + statusStr);
     }
 }

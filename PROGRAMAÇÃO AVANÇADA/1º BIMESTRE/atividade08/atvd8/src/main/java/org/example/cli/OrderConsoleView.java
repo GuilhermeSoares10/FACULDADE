@@ -20,7 +20,7 @@ public class OrderConsoleView {
         int option;
         do {
             printOrderMenu();
-            option = readInt(scanner);
+            option = ConsoleInputUtils.readInt(scanner);
 
             try {
                 switch (option) {
@@ -57,7 +57,7 @@ public class OrderConsoleView {
         System.out.print("UUID do Serviço/Produto: ");
         UUID productId = ValidationUtils.parseUuid(scanner.nextLine());
         System.out.print("Quantidade de horas contratadas: ");
-        double hours = readDouble(scanner);
+        double hours = ConsoleInputUtils.readDouble(scanner);
 
         Order order = orderService.createOrder(userId, productId, hours);
         System.out.println("Pedido criado com sucesso!");
@@ -83,7 +83,7 @@ public class OrderConsoleView {
         System.out.println("3 - COMPLETED (Concluído)");
         System.out.println("4 - CANCELLED (Cancelado)");
         System.out.print("Escolha: ");
-        int choice = readInt(scanner);
+        int choice = ConsoleInputUtils.readInt(scanner);
 
         OrderStatus status = switch (choice) {
             case 1 -> OrderStatus.PENDING;
@@ -107,7 +107,7 @@ public class OrderConsoleView {
         System.out.println("3 - COMPLETED (Concluído)");
         System.out.println("4 - CANCELLED (Cancelado)");
         System.out.print("Escolha: ");
-        int choice = readInt(scanner);
+        int choice = ConsoleInputUtils.readInt(scanner);
 
         OrderStatus status = switch (choice) {
             case 1 -> OrderStatus.PENDING;
@@ -137,28 +137,6 @@ public class OrderConsoleView {
             for (Order order : orders) {
                 System.out.println(order);
             }
-        }
-    }
-
-    private int readInt(Scanner scanner) {
-        try {
-            int val = scanner.nextInt();
-            scanner.nextLine();
-            return val;
-        } catch (Exception e) {
-            scanner.nextLine();
-            return -1;
-        }
-    }
-
-    private double readDouble(Scanner scanner) {
-        try {
-            double val = scanner.nextDouble();
-            scanner.nextLine();
-            return val;
-        } catch (Exception e) {
-            scanner.nextLine();
-            return -1.0;
         }
     }
 }

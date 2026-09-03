@@ -19,7 +19,7 @@ public class UserConsoleView {
         int option;
         do {
             printUserMenu();
-            option = readInt(scanner);
+            option = ConsoleInputUtils.readInt(scanner);
 
             try {
                 switch (option) {
@@ -108,16 +108,5 @@ public class UserConsoleView {
         UUID uuid = ValidationUtils.parseUuid(uuidStr);
         userService.deleteUser(uuid);
         System.out.println("Usuário removido com sucesso.");
-    }
-
-    private int readInt(Scanner scanner) {
-        try {
-            int val = scanner.nextInt();
-            scanner.nextLine();
-            return val;
-        } catch (Exception e) {
-            scanner.nextLine();
-            return -1;
-        }
     }
 }
